@@ -10,6 +10,7 @@ webApp class
  October 2009 - February 2015
 """
 
+import random
 import socket
 
 
@@ -49,17 +50,29 @@ class webApp:
         # parse and process methods (in a loop)
 
         while True:
-            print 'Waiting for connections'
+            print ('Waiting for connections')
             (recvSocket, address) = mySocket.accept()
-            print 'HTTP request received (going to parse and process):'
+            print ('HTTP request received (going to parse and process):')
             request = recvSocket.recv(2048)
-            print request
+            print (request)
             parsedRequest = self.parse(request)
             (returnCode, htmlAnswer) = self.process(parsedRequest)
-            print 'Answering back...'
-            recvSocket.send("HTTP/1.1 " + returnCode + " \r\n\r\n"
-                            + htmlAnswer + "\r\n")
+            print ('Answering back...')
+            recvSocket.send(bytes("HTTP/1.1 " + returnCode + "\r\n\r\n"
+                            + htmlAnswer + "\r\n",'utf-8'))
             recvSocket.close()
 
+class aleatApp(webApp):
+
+	def process(self,parsedRequest):
+		num_random = str(random.randrange(1000))
+
+		htmlAnswer = "<html><body>"
+		htmlAnswer += "<p><h5>" + "Hola. " + "</h5></p>"
+		htmlAnswer += "<h2><a href=" + num_random + ">Dame otra.</a></h2>"
+		htmlAnswer += "</body></html>"
+
+		return("200 OK", htmlAnswer)
+
 if __name__ == "__main__":
-    testWebApp = webApp("localhost", 1234)
+    testWebApp = aleatApp("localhost", 1234)
